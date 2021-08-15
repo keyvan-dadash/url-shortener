@@ -1,0 +1,27 @@
+version: '3'
+
+services: 
+  url:
+    image: url
+    build: 
+        context: .
+        dockerfile: Dockerfile
+    ports:
+        - 8080:8080
+    restart: on-failure
+    networks:
+        - backend
+    depends_on: 
+        - redis-storage
+
+  redis-storage:
+    image: "redis"
+    ports: 
+      - "127.0.0.1:10332:6379"
+    restart: on-failure
+    networks: 
+      - backend
+
+
+networks: 
+  backend:
