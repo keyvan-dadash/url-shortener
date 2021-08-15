@@ -8,18 +8,18 @@ import (
 
 //URL is strcut which represent all short url attributs
 type URL struct {
-	id          int64
+	ID          uint64
 	OriginalURL string
 	ShortURL    string
 	CreatedTime time.Time
-	ExpireTime  time.Time
-	Clicked     int64
+	ExpireTime  time.Duration
+	Clicked     uint64
 }
 
-func CreateURLObj(ID int64, OriginalURL string, ExpireTime time.Time) *URL {
+func CreateURLObj(ID uint64, OriginalURL string, ExpireTime time.Duration) *URL {
 
 	return &URL{
-		id:          ID,
+		ID:          ID,
 		OriginalURL: OriginalURL,
 		ShortURL:    base62.Encode(ID),
 		CreatedTime: time.Now(),
