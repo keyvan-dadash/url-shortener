@@ -15,7 +15,7 @@ func main() {
 
 	root := context.Background()
 
-	redisClient := redis.CreateRedisClient("redis-auth:6379", "", 0)
+	redisClient := redis.CreateRedisClient("redis-storage:6379", "", 0)
 	defer redisClient.Close()
 	urlRepo := url_repo.URLRedisStorage{
 		Client: redisClient,

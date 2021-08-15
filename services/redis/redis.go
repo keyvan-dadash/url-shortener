@@ -7,9 +7,9 @@ import (
 //CreateRedisClient return Redis structure with given options
 func CreateRedisClient(Addr string, Password string, DB int) *redis.Client {
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "redis-auth:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr:     Addr,
+		Password: Password, // no password set
+		DB:       DB,       // use default DB
 	})
 
 	return redisClient

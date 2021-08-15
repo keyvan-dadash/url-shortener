@@ -18,6 +18,7 @@ type URLRepo interface {
 
 	//modify AIP's
 	SaveURL(ctx context.Context, url *url_model.URL) error
+	UpdateURL(ctx context.Context, url *url_model.URL) error
 	DeleteURLByID(ctx context.Context, id uint64) error
 	DeleteURLByShortURL(ctx context.Context, shortUrl string) error
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"math/rand"
+	"strconv"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
@@ -47,7 +48,7 @@ func (urs *URLRedisStorage) GetURLByShortURL(ctx context.Context, shortUrl strin
 }
 
 func (urs *URLRedisStorage) IsValidID(ctx context.Context, id uint64) bool {
-	if _, err := urs.Client.Get(ctx, string(id)).Result(); err != nil {
+	if _, err := urs.Client.Get(ctx, strconv.FormatUint(id, 10)).Result(); err != nil {
 		if err != redis.Nil {
 			logrus.Errorf("[ERROR] redis get key %v faild with err %v\n", id, err)
 		}
@@ -58,7 +59,7 @@ func (urs *URLRedisStorage) IsValidID(ctx context.Context, id uint64) bool {
 }
 
 func (urs *URLRedisStorage) GetURLByID(ctx context.Context, id uint64) (*url_model.URL, error) {
-	val, err := urs.Client.Get(ctx, string(id)).Result()
+	val, err := urs.Client.Get(ctx, strconv.FormatUint(id, 10)).Result()
 	if err != nil {
 		if err != redis.Nil {
 			logrus.Errorf("[ERROR] redis get key %v faild with err %v\n", id, err)
@@ -79,10 +80,10 @@ func (urs *URLRedisStorage) GetURLByID(ctx context.Context, id uint64) (*url_mod
 //Modifiers
 
 func (urs *URLRedisStorage) SaveURL(ctx context.Context, url *url_model.URL) error {
-	if !urs.IsValidID(ctx, url.ID) {
+	if urs.IsValidID(ctx, url.ID) {
 		for {
 			id := rand.Uint64()
-			if urs.IsValidID(ctx, id) {
+			if !urs.IsValidID(ctx, id) {
 				url.ID = id
 				break
 			}
@@ -98,7 +99,35 @@ func (urs *URLRedisStorage) SaveURL(ctx context.Context, url *url_model.URL) err
 
 	urlStr := string(bytes)
 
-	err = urs.Client.Set(ctx, string(url.ID), urlStr, url.ExpireTime).Err()
+	err = urs.Client.Set(ctx, strconv.FormatUint(url.ID, 10), urlStr, url.ExpireTime).Err()
+
+	if err != nil {
+		logrus.Errorf("[ERROR] redis set key %v faild with err %v\n", url.ID, err)
+		return err
+	}
+
+	err = urs.Client.Set(ctx, string(url.ShortURL), urlStr, url.ExpireTime).Err()
+
+	if err != nil {
+		logrus.Errorf("[ERROR] redis set key %v faild with err %v\n", url.ID, err)
+		return err
+	}
+
+	return err
+}
+
+func (urs *URLRedisStorage) UpdateURL(ctx context.Context, url *url_model.URL) error {
+
+	bytes, err := json.Marshal(url)
+
+	if err != nil {
+		logrus.Errorf("[ERROR] marshal json at key %v faild with err %v\n", url.ShortURL, err)
+		return err
+	}
+
+	urlStr := string(bytes)
+
+	err = urs.Client.Set(ctx, strconv.FormatUint(url.ID, 10), urlStr, url.ExpireTime).Err()
 
 	if err != nil {
 		logrus.Errorf("[ERROR] redis set key %v faild with err %v\n", url.ID, err)
@@ -124,7 +153,7 @@ func (urs *URLRedisStorage) DeleteURLByID(ctx context.Context, id uint64) error 
 		return err
 	}
 
-	err = urs.Client.Del(ctx, string(url.ID), url.ShortURL).Err()
+	err = urs.Client.Del(ctx, strconv.FormatUint(url.ID, 10), url.ShortURL).Err()
 
 	if err != nil {
 		logrus.Errorf("[ERROR] delete key %v faild with err %v\n", url.ID, err)
@@ -142,7 +171,7 @@ func (urs *URLRedisStorage) DeleteURLByShortURL(ctx context.Context, shortUrl st
 		return err
 	}
 
-	err = urs.Client.Del(ctx, string(url.ID), url.ShortURL).Err()
+	err = urs.Client.Del(ctx, strconv.FormatUint(url.ID, 10), url.ShortURL).Err()
 
 	if err != nil {
 		logrus.Errorf("[ERROR] delete key %v faild with err %v\n", url.ID, err)

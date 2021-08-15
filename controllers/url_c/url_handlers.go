@@ -25,11 +25,11 @@ func HandlerRedirect(urlRepo url_repo.URLRepo) gin.HandlerFunc {
 		}
 
 		url.Clicked += 1
-		err = urlRepo.SaveURL(ctx, url)
+		err = urlRepo.UpdateURL(ctx, url)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"err": err.Error(),
+				"err1": err.Error(),
 			})
 			return
 		}
