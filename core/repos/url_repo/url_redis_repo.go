@@ -33,8 +33,9 @@ func (urs *URLRedisStorage) GetURLByShortURL(ctx context.Context, shortUrl strin
 	if err != nil {
 		if err != redis.Nil {
 			logrus.Errorf("[ERROR] redis get key %v faild with err %v\n", shortUrl, err)
+			return nil, err
 		}
-		return nil, err
+		return nil, url_model.ErrShortURLDoesNotExists
 	}
 
 	url := new(url_model.URL)
@@ -64,7 +65,7 @@ func (urs *URLRedisStorage) GetURLByID(ctx context.Context, id uint64) (*url_mod
 		if err != redis.Nil {
 			logrus.Errorf("[ERROR] redis get key %v faild with err %v\n", id, err)
 		}
-		return nil, err
+		return nil, url_model.ErrShortURLDoesNotExists
 	}
 
 	url := new(url_model.URL)

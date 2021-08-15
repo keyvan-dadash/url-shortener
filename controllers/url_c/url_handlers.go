@@ -1,6 +1,7 @@
 package url_c
 
 import (
+	"errors"
 	"math/rand"
 	"net/http"
 	"time"
@@ -17,9 +18,15 @@ func HandlerRedirect(urlRepo url_repo.URLRepo) gin.HandlerFunc {
 		ctx := c.Request.Context()
 		url, err := urlRepo.GetURLByShortURL(ctx, shortUrl)
 
-		if err != nil {
+		if err != nil && errors.Is(err, url_model.ErrShortURLDoesNotExists) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": err.Error(),
+			})
+
+			return
+		} else if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"err": err.Error(),
+				"status": "try again later",
 			})
 			return
 		}
@@ -29,7 +36,7 @@ func HandlerRedirect(urlRepo url_repo.URLRepo) gin.HandlerFunc {
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"err1": err.Error(),
+				"error": "try again later",
 			})
 			return
 		}
