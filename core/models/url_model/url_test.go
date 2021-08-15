@@ -20,5 +20,5 @@ func TestCreatingURL(t *testing.T) {
 	assert.Equal(urlObj.OriginalURL, "https://google.com")
 	assert.Equal(urlObj.ShortURL, base62.Encode(id))
 	assert.Equal(urlObj.ExpireTime, time.Hour*2)
-	assert.Equal(urlObj.Clicked, 0)
+	assert.Equal(urlObj.Clicked, uint64(0))
 }

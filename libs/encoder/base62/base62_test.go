@@ -10,11 +10,11 @@ import (
 func TestBase62Encode(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.Equal(base62.Encode(uint64(473475984745793)), "2ARoEW4Fl")
+	assert.Equal("eM0cQu", base62.Encode(uint64(4238435464)))
 }
 
 func TestBase62Decode(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.Equal(base62.Decode("2ARoEW4Fl"), uint64(473475984745793))
+	assert.Equal(uint64(4238435464), base62.Decode("eM0cQu"))
 }
