@@ -21,7 +21,7 @@ func main() {
 		Client: redisClient,
 	}
 
-	ctxWithRepo := context.WithValue(root, "user-repo", urlRepo)
+	ctxWithRepo := url_repo.SetURLRepoInContext(root, &urlRepo)
 
 	routers.InitRoutes(ctxWithRepo, &router.RouterGroup)
 
