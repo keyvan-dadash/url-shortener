@@ -31,12 +31,16 @@ func TestSaveURL(t *testing.T) {
 	redisRepo := getRedisRepo()
 	defer redisRepo.(*URLRedisStorage).Close()
 
+	//save url obj
 	id := rand.Uint64()
 	urlObj := url_model.CreateURLObj(id, "https://google.com", time.Hour*2)
 
 	err := redisRepo.SaveURL(root, urlObj)
 
 	assert.Equal(err, nil)
+
+	//clean up
+	redisRepo.(*URLRedisStorage).Del(root, strconv.FormatUint(urlObj.ID, 10), urlObj.ShortURL)
 }
 
 func TestUpdateURL(t *testing.T) {
@@ -46,6 +50,7 @@ func TestUpdateURL(t *testing.T) {
 	redisRepo := getRedisRepo()
 	defer redisRepo.(*URLRedisStorage).Close()
 
+	//save url obj
 	id := rand.Uint64()
 	urlObj := url_model.CreateURLObj(id, "https://google.com", time.Hour*2)
 
@@ -53,12 +58,16 @@ func TestUpdateURL(t *testing.T) {
 
 	assert.Equal(err, nil)
 
+	//begin to test update url
 	urlObj.Clicked += 1
 
 	err = redisRepo.UpdateURL(root, urlObj)
 
 	assert.Equal(err, nil)
 	assert.Equal(urlObj.Clicked, 1)
+
+	//clean up
+	redisRepo.(*URLRedisStorage).Del(root, strconv.FormatUint(urlObj.ID, 10), urlObj.ShortURL)
 }
 
 func TestDeleteURLByID(t *testing.T) {
@@ -68,6 +77,7 @@ func TestDeleteURLByID(t *testing.T) {
 	redisRepo := getRedisRepo()
 	defer redisRepo.(*URLRedisStorage).Close()
 
+	//save url obj
 	id := rand.Uint64()
 	urlObj := url_model.CreateURLObj(id, "https://google.com", time.Hour*2)
 
@@ -75,6 +85,7 @@ func TestDeleteURLByID(t *testing.T) {
 
 	assert.Equal(err, nil)
 
+	//begin to test delete url by id (also clean up)
 	err = redisRepo.DeleteURLByID(root, urlObj.ID)
 
 	assert.Equal(err, nil)
@@ -96,6 +107,7 @@ func TestDeleteURLByShortURL(t *testing.T) {
 	redisRepo := getRedisRepo()
 	defer redisRepo.(*URLRedisStorage).Close()
 
+	//save url obj
 	id := rand.Uint64()
 	urlObj := url_model.CreateURLObj(id, "https://google.com", time.Hour*2)
 
@@ -103,6 +115,7 @@ func TestDeleteURLByShortURL(t *testing.T) {
 
 	assert.Equal(err, nil)
 
+	//begin to test delete url by url (also clean up)
 	err = redisRepo.DeleteURLByShortURL(root, urlObj.ShortURL)
 
 	assert.Equal(err, nil)
@@ -124,6 +137,7 @@ func TestIsValidShortURL(t *testing.T) {
 	redisRepo := getRedisRepo()
 	defer redisRepo.(*URLRedisStorage).Close()
 
+	//save url obj
 	id := rand.Uint64()
 	urlObj := url_model.CreateURLObj(id, "https://google.com", time.Hour*2)
 
@@ -131,12 +145,15 @@ func TestIsValidShortURL(t *testing.T) {
 
 	assert.Equal(err, nil)
 
+	//begin to test is valid short url
 	assert.Equal(redisRepo.IsValidShortURL(root, urlObj.ShortURL), true)
 
+	//clean up
 	err = redisRepo.DeleteURLByShortURL(root, urlObj.ShortURL)
 
 	assert.Equal(err, nil)
 
+	//check not exist after clean up
 	assert.Equal(redisRepo.IsValidShortURL(root, urlObj.ShortURL), false)
 }
 
@@ -147,6 +164,7 @@ func TestIsValidID(t *testing.T) {
 	redisRepo := getRedisRepo()
 	defer redisRepo.(*URLRedisStorage).Close()
 
+	//save url obj
 	id := rand.Uint64()
 	urlObj := url_model.CreateURLObj(id, "https://google.com", time.Hour*2)
 
@@ -154,12 +172,14 @@ func TestIsValidID(t *testing.T) {
 
 	assert.Equal(err, nil)
 
+	//begin to test is valid id
 	assert.Equal(redisRepo.IsValidID(root, urlObj.ID), true)
 
 	err = redisRepo.DeleteURLByID(root, urlObj.ID)
 
 	assert.Equal(err, nil)
 
+	//check not exist after clean up
 	assert.Equal(redisRepo.IsValidID(root, urlObj.ID), false)
 }
 
@@ -170,6 +190,7 @@ func TestGetURLByShortURL(t *testing.T) {
 	redisRepo := getRedisRepo()
 	defer redisRepo.(*URLRedisStorage).Close()
 
+	//save url obj
 	id := rand.Uint64()
 	urlObj := url_model.CreateURLObj(id, "https://google.com", time.Hour*2)
 
@@ -177,11 +198,15 @@ func TestGetURLByShortURL(t *testing.T) {
 
 	assert.Equal(err, nil)
 
+	//begin to test get url by short url
 	urlObjFromRepo, err := redisRepo.GetURLByShortURL(root, urlObj.ShortURL)
 
 	assert.Equal(err, nil)
 
 	assert.Equal(reflect.DeepEqual(urlObj, urlObjFromRepo), true)
+
+	//clean up
+	redisRepo.(*URLRedisStorage).Del(root, strconv.FormatUint(urlObj.ID, 10), urlObj.ShortURL)
 }
 
 func TestGetURLByID(t *testing.T) {
@@ -191,6 +216,7 @@ func TestGetURLByID(t *testing.T) {
 	redisRepo := getRedisRepo()
 	defer redisRepo.(*URLRedisStorage).Close()
 
+	//save url obj
 	id := rand.Uint64()
 	urlObj := url_model.CreateURLObj(id, "https://google.com", time.Hour*2)
 
@@ -198,11 +224,15 @@ func TestGetURLByID(t *testing.T) {
 
 	assert.Equal(err, nil)
 
+	//begin to test get url by id
 	urlObjFromRepo, err := redisRepo.GetURLByID(root, urlObj.ID)
 
 	assert.Equal(err, nil)
 
 	assert.Equal(reflect.DeepEqual(urlObj, urlObjFromRepo), true)
+
+	//clean up
+	redisRepo.(*URLRedisStorage).Del(root, strconv.FormatUint(urlObj.ID, 10), urlObj.ShortURL)
 }
 
 func TestTimeoutAndDeletedURL(t *testing.T) {
@@ -212,6 +242,7 @@ func TestTimeoutAndDeletedURL(t *testing.T) {
 	redisRepo := getRedisRepo()
 	defer redisRepo.(*URLRedisStorage).Close()
 
+	//save url obj
 	id := rand.Uint64()
 	urlObj := url_model.CreateURLObj(id, "https://google.com", time.Second*1)
 
@@ -219,6 +250,7 @@ func TestTimeoutAndDeletedURL(t *testing.T) {
 
 	assert.Equal(err, nil)
 
+	//clean up with time out
 	time.Sleep(time.Second * 1)
 
 	_, err = redisRepo.(*URLRedisStorage).Get(root, urlObj.ShortURL).Result()
