@@ -300,7 +300,6 @@ func TestNotFoundGetURLByID(t *testing.T) {
 	id := rand.Uint64()
 
 	_, err := redisRepo.GetURLByID(root, id)
-
 	assert.Equal(errors.Is(err, url_model.ErrShortURLDoesNotExists), true)
 
 }
