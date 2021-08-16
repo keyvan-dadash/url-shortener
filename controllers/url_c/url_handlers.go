@@ -11,6 +11,7 @@ import (
 	"github.com/sod-lol/url-shortener/core/repos/url_repo"
 )
 
+//HandlerRedirect is gin func handler for when user enter short url and we must redirect
 func HandlerRedirect(urlRepo url_repo.URLRepo) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -50,6 +51,7 @@ type shortURLRequest struct {
 	URL string `form:"url" json:"url" xml:"url"  binding:"required"`
 }
 
+//HandlerShortURLRequest is gin func handler which is for submit url and take short url
 func HandlerShortURLRequest(urlRepo url_repo.URLRepo) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -67,12 +69,12 @@ func HandlerShortURLRequest(urlRepo url_repo.URLRepo) gin.HandlerFunc {
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"err": err.Error(),
+				"error": "try again later",
 			})
 			return
 		}
 
-		c.JSON(http.StatusAccepted, gin.H{
+		c.JSON(http.StatusCreated, gin.H{
 			"short_url": url.ShortURL,
 		})
 

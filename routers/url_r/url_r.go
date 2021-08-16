@@ -9,6 +9,7 @@ import (
 	"github.com/sod-lol/url-shortener/core/repos/url_repo"
 )
 
+//SetUpUrlRoutes for URL shortner app
 func SetUpUrlRoutes(ctx context.Context, g *gin.RouterGroup) {
 
 	urlRepo, hasUrlRepo := url_repo.GetURLRepoFromContex(ctx)

@@ -1,5 +1,6 @@
 package base62
 
+//Decode function take string then decode to uint64
 func Decode(s string) uint64 {
 	dict := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	base := uint64(len(dict))
@@ -14,6 +15,7 @@ func Decode(s string) uint64 {
 	return d
 }
 
+//Encode function take uint64 then encode to base 62 string
 func Encode(i uint64) string {
 	dict := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	base := uint64(len(dict))

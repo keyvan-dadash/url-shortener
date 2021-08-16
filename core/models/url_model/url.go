@@ -16,6 +16,8 @@ type URL struct {
 	Clicked     uint64
 }
 
+//CreateURLObj is function which give ID, OriginalURL and ExpireTime then give you whole
+// URL obj which is auto generated short url
 func CreateURLObj(ID uint64, OriginalURL string, ExpireTime time.Duration) *URL {
 
 	return &URL{
