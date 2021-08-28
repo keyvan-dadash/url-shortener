@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -28,7 +29,7 @@ func setUpRouters() (*gin.Engine, *url_repo.URLRedisStorage) {
 	ctxWithRepo := url_repo.SetURLRepoInContext(root, &urlRepo)
 
 	routers.InitRoutes(ctxWithRepo, &router.RouterGroup)
-
+	// fmt.Println("heloo")
 	router.Run(":8080")
 
 	return router, &urlRepo
@@ -61,6 +62,64 @@ func TestSubmitURL(t *testing.T) {
 
 	assert.Equal(err, nil)
 
+	root := context.Background()
+	err = urlRepo.DeleteURLByShortURL(root, resp.ShortURL)
+
+	assert.Equal(err, nil)
+
+}
+
+type GetURLInfoRespTestBody struct {
+	ID          uint64 `json:"ID"`
+	OriginalURL string `json:"OriginalURL"`
+	ShortURL    string `json:"ShortURL"`
+	Clicked     uint64 `json:"Clicked"`
+}
+
+func TestGetURLInfo(t *testing.T) {
+	fmt.Println("1")
+	assert := assert.New(t)
+	routerSetup, urlRepo := setUpRouters()
+	defer shutdownRouter(urlRepo)
+
+	w := httptest.NewRecorder()
+
+	//submit url
+	jsonBody := `{"url": "https://www.google.com"}`
+	req, _ := http.NewRequest("POST", "/url/submit", strings.NewReader(string(jsonBody)))
+	routerSetup.ServeHTTP(w, req)
+	fmt.Println("2")
+	assert.Equal(http.StatusCreated, w.Code)
+
+	respGoogle := &RespTestBody{}
+	err := json.Unmarshal(w.Body.Bytes(), respGoogle)
+
+	assert.Equal(err, nil)
+	fmt.Println("3")
+	//get url info test
+	w = httptest.NewRecorder()
+
+	req, _ = http.NewRequest("GET", "/url/info/"+respGoogle.ShortURL, nil)
+	routerSetup.ServeHTTP(w, req)
+	fmt.Println("4")
+	respGoogleInfo := &GetURLInfoRespTestBody{}
+	err = json.Unmarshal(w.Body.Bytes(), respGoogleInfo)
+
+	assert.Equal(err, nil)
+
+	assert.Equal(http.StatusCreated, w.Code)
+
+	//assert.Equal(respGoogleInfo.ID, id)
+	assert.Equal(respGoogleInfo.OriginalURL, "https://google.com")
+	assert.Equal(respGoogleInfo.ShortURL, respGoogle.ShortURL)
+	assert.Equal(respGoogleInfo.Clicked, uint64(0))
+
+	//clean up
+	resp := &RespTestBody{}
+	err = json.Unmarshal(w.Body.Bytes(), resp)
+
+	assert.Equal(err, nil)
+	fmt.Println(respGoogleInfo.ShortURL)
 	root := context.Background()
 	err = urlRepo.DeleteURLByShortURL(root, resp.ShortURL)
 

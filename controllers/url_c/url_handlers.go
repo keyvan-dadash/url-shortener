@@ -80,3 +80,28 @@ func HandlerShortURLRequest(urlRepo url_repo.URLRepo) gin.HandlerFunc {
 
 	}
 }
+
+//GET
+// /HandlerShortURLInformation if function which is return information about given short url
+func HandlerShortURLInformation(urlRepo url_repo.URLRepo) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		shortUrl := c.Param("shortUrl")
+
+		ctx := c.Request.Context()
+
+		url_struct, err := urlRepo.GetURLByShortURL(ctx, shortUrl)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "try again later",
+			})
+			return
+		}
+
+		c.JSON(http.StatusCreated, gin.H{
+			"url_information": url_struct,
+		})
+
+	}
+}

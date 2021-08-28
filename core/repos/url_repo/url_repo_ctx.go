@@ -5,7 +5,7 @@ import "context"
 type repoKey string
 
 var (
-	URLRepoKey = repoKey("user-repo")
+	URLRepoKey = repoKey("url-repo")
 )
 
 func SetURLRepoInContext(parentCtx context.Context, urlRepo URLRepo) context.Context {

@@ -19,4 +19,5 @@ func SetUpUrlRoutes(ctx context.Context, g *gin.RouterGroup) {
 
 	g.POST("/submit", url_c.HandlerShortURLRequest(urlRepo))
 	g.GET("/:shortUrl", url_c.HandlerRedirect(urlRepo))
+	g.GET("/info/:shortUrl", url_c.HandlerShortURLInformation(urlRepo))
 }
