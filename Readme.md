@@ -46,9 +46,9 @@ this project has 3 urls
     {base_url}/url/submit
     ```
     and with body of:
-    ```
+    ```json
     {
-        "url": "https://www.example.com
+        "url": "https://www.example.com"
     }
     ```
 
