@@ -10,10 +10,12 @@ docker-compose up -d --build
 ## Migrate to another db
 for migrate to other databases:
 
-- Add databse config
+- ### Add databse config
+
 add your databse config to services folder
 
--  Implement interface
+-  ### Implement interface
+
 implement this interface(which is reside at repos/url_repo/url_repo.go):
  ```go
 //URLRepo is interface which is every database storage for
@@ -33,7 +35,7 @@ type URLRepo interface {
 	DeleteURLByShortURL(ctx context.Context, shortUrl string) error
 }
  ```
-- Write Test!!
+- ### Write Test!!
 simply write your test!!
 
 ## Urls
