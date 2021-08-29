@@ -41,23 +41,24 @@ for migrate to other databases:
 ## Urls
 this project has 3 urls
 
-- Submit url
-```
-{base_url}/url/submit
-```
-and with body of 
-```
-{
-    "url": "https://www.example.com
-}
-```
+- #### Submit url
+    submit your url at:
+    ```
+    {base_url}/url/submit
+    ```
+    and with body of:
+    ```
+    {
+        "url": "https://www.example.com
+    }
+    ```
 
-- Redirect to url
-```
-{base_url}/url/{short_url}
-```
+- #### Redirect to url
+    ```
+    {base_url}/url/{short_url}
+    ```
 
-- Url metrics
-```
-{base_url}/url/info/{short_url}
-```
+- #### Url metrics
+    ```
+    {base_url}/url/info/{short_url}
+    ```
