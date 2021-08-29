@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -17,6 +19,8 @@ import (
 )
 
 func setUpRouters() (*gin.Engine, *url_repo.URLRedisStorage) {
+	gin.DefaultWriter = ioutil.Discard
+
 	router := gin.New()
 
 	root := context.Background()
@@ -29,8 +33,6 @@ func setUpRouters() (*gin.Engine, *url_repo.URLRedisStorage) {
 	ctxWithRepo := url_repo.SetURLRepoInContext(root, &urlRepo)
 
 	routers.InitRoutes(ctxWithRepo, &router.RouterGroup)
-	// fmt.Println("heloo")
-	router.Run(":8080")
 
 	return router, &urlRepo
 }
@@ -77,7 +79,6 @@ type GetURLInfoRespTestBody struct {
 }
 
 func TestGetURLInfo(t *testing.T) {
-	fmt.Println("1")
 	assert := assert.New(t)
 	routerSetup, urlRepo := setUpRouters()
 	defer shutdownRouter(urlRepo)
@@ -88,31 +89,36 @@ func TestGetURLInfo(t *testing.T) {
 	jsonBody := `{"url": "https://www.google.com"}`
 	req, _ := http.NewRequest("POST", "/url/submit", strings.NewReader(string(jsonBody)))
 	routerSetup.ServeHTTP(w, req)
-	fmt.Println("2")
 	assert.Equal(http.StatusCreated, w.Code)
 
 	respGoogle := &RespTestBody{}
 	err := json.Unmarshal(w.Body.Bytes(), respGoogle)
 
 	assert.Equal(err, nil)
-	fmt.Println("3")
+
 	//get url info test
 	w = httptest.NewRecorder()
 
-	req, _ = http.NewRequest("GET", "/url/info/"+respGoogle.ShortURL, nil)
+	completeURL := string("/url/info/") + respGoogle.ShortURL
+	req, _ = http.NewRequest("GET", completeURL, nil)
 	routerSetup.ServeHTTP(w, req)
-	fmt.Println("4")
-	respGoogleInfo := &GetURLInfoRespTestBody{}
-	err = json.Unmarshal(w.Body.Bytes(), respGoogleInfo)
 
-	assert.Equal(err, nil)
+	respInfo := w.Result()
+	body, _ := io.ReadAll(respInfo.Body)
 
-	assert.Equal(http.StatusCreated, w.Code)
+	type Response struct {
+		URLInformation GetURLInfoRespTestBody `json:"url_information"`
+	}
 
-	//assert.Equal(respGoogleInfo.ID, id)
-	assert.Equal(respGoogleInfo.OriginalURL, "https://google.com")
-	assert.Equal(respGoogleInfo.ShortURL, respGoogle.ShortURL)
-	assert.Equal(respGoogleInfo.Clicked, uint64(0))
+	var wholeResp Response
+	err = json.Unmarshal(body, &wholeResp)
+	respGoogleInfo := wholeResp.URLInformation
+	assert.Equal(nil, err)
+
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal("https://www.google.com", respGoogleInfo.OriginalURL)
+	assert.Equal(respGoogle.ShortURL, respGoogleInfo.ShortURL)
+	assert.Equal(uint64(0), respGoogleInfo.Clicked)
 
 	//clean up
 	resp := &RespTestBody{}
@@ -121,7 +127,7 @@ func TestGetURLInfo(t *testing.T) {
 	assert.Equal(err, nil)
 	fmt.Println(respGoogleInfo.ShortURL)
 	root := context.Background()
-	err = urlRepo.DeleteURLByShortURL(root, resp.ShortURL)
+	err = urlRepo.DeleteURLByShortURL(root, respGoogleInfo.ShortURL)
 
 	assert.Equal(err, nil)
 

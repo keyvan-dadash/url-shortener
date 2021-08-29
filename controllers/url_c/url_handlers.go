@@ -99,7 +99,7 @@ func HandlerShortURLInformation(urlRepo url_repo.URLRepo) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusCreated, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"url_information": url_struct,
 		})
 
