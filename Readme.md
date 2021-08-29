@@ -18,8 +18,7 @@ for migrate to other databases:
 
     implement this interface(which is reside at repos/url_repo/url_repo.go):
     ```go
-    //URLRepo is interface which is every database storage for
-    // storing url obj should implement this
+    //URLRepo should be implemented for all databases.
     type URLRepo interface {
 
         //query API's

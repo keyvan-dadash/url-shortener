@@ -6,8 +6,7 @@ import (
 	"github.com/sod-lol/url-shortener/core/models/url_model"
 )
 
-//URLRepo is interface which is every database storage for
-// storing url obj should implement this
+//URLRepo should be implemented for all databases.
 type URLRepo interface {
 
 	//query API's
